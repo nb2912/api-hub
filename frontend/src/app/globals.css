@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-headline: 'Manrope', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Custom Material 3 Color Tokens */
+  --color-primary: #5b5a8b;
+  --color-primary-dim: #4f4e7e;
+  --color-on-primary: #fbf7ff;
+  --color-primary-container: #bbb9f1;
+  --color-on-primary-container: #363564;
+  
+  --color-secondary: #5e5d72;
+  --color-secondary-container: #e3e0f9;
+  --color-on-secondary-container: #515064;
+  
+  --color-tertiary: #755478;
+  --color-tertiary-container: #fdd2fd;
+  --color-on-tertiary-container: #654568;
+
+  --color-surface: #f8f9ff;
+  --color-on-surface: #05345c;
+  --color-surface-variant: #d2e4ff;
+  --color-on-surface-variant: #3d618c;
+  
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d2e4ff;
+
+  --color-outline: #5a7da9;
+  --color-outline-variant: #91b4e4;
+  --color-error: #a8364b;
+  --color-background: #f8f9ff;
+}
+
+body {
+  color: var(--color-on-surface);
+  background: var(--color-background);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-headline);
+}
+
+.glass-nav {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
