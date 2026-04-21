@@ -13,7 +13,7 @@ const GithubIcon = ({ className }: { className?: string }) => (
 );
 
 export default function Register() {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ full_name: '', email: '', password: '', username: '' });
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -80,6 +80,21 @@ export default function Register() {
 
           <form onSubmit={handleRegister} className="space-y-6">
             <div className="space-y-2">
+              <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-2 opacity-60">Username</label>
+              <div className="relative">
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-outline/30" />
+                <input 
+                  type="text" 
+                  required
+                  className="w-full pl-14 pr-6 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-bold text-sm placeholder:text-outline/30"
+                  placeholder="athorne"
+                  value={formData.username}
+                  onChange={e => setFormData({...formData, username: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-2 opacity-60">Full Name</label>
               <div className="relative">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-outline/30" />
@@ -88,8 +103,8 @@ export default function Register() {
                   required
                   className="w-full pl-14 pr-6 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-bold text-sm placeholder:text-outline/30"
                   placeholder="Aris Thorne"
-                  value={formData.name}
-                  onChange={e => setFormData({...formData, name: e.target.value})}
+                  value={formData.full_name}
+                  onChange={e => setFormData({...formData, full_name: e.target.value})}
                 />
               </div>
             </div>

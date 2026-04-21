@@ -6,11 +6,50 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import api from '@/services/api';
 import { cn } from '@/lib/utils';
+import { getCategoryStyles } from '@/lib/api-styles';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("Overview");
+  const [user, setUser] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [myApis, setMyApis] = useState<any[]>([]);
+  const [apiKeys, setApiKeys] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userRes, statsRes, apisRes, keysRes] = await Promise.all([
+          api.get('/auth/me'),
+          api.get('/analytics/stats'),
+          api.get('/apis/my-apis'),
+          api.get('/keys/')
+        ]);
+        setUser(userRes.data);
+        setStats(statsRes.data);
+        setMyApis(apisRes.data);
+        setApiKeys(keysRes.data);
+      } catch (err) {
+        console.error("Dashboard data fetch failed", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const rotateKey = async () => {
+    try {
+      await api.post('/keys/', { name: "Default Key" });
+      const res = await api.get('/keys/');
+      setApiKeys(res.data);
+    } catch (err) {
+      alert("Failed to rotate key");
+    }
+  };
 
   const LATENCY_DATA = [40, 60, 45, 85, 55, 50, 65, 75, 30, 90, 50, 40];
+  const activeKey = apiKeys.length > 0 ? apiKeys[apiKeys.length - 1].key_value : "sk_live_****************";
 
   return (
     <main className="min-h-screen bg-background text-on-background font-sans tracking-tight flex flex-col">
@@ -67,21 +106,23 @@ export default function Dashboard() {
           {/* Header Section */}
           <div className="flex flex-col lg:flex-row justify-between items-start gap-10 mb-16">
             <div className="max-w-2xl">
-              <h1 className="text-[44px] font-[900] tracking-tighter text-on-surface mb-4 leading-none">Welcome back, Dr. Aris.</h1>
-              <p className="text-on-surface-variant text-lg leading-relaxed font-medium">Your Academic Plan is active. You have published 4 APIs this semester with a 99.8% uptime across all endpoints.</p>
+              <h1 className="text-[44px] font-[900] tracking-tighter text-on-surface mb-4 leading-none">Welcome back, {user?.full_name?.split(' ')[0] || 'Researcher'}.</h1>
+              <p className="text-on-surface-variant text-lg leading-relaxed font-medium">Your Academic Plan is active. You have published {myApis.length} APIs with a high reliability score across all nodes.</p>
             </div>
             <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
               <div className="bg-surface-container-low p-8 rounded-[32px] flex flex-col gap-3 border border-black/5 min-w-[200px]">
                 <span className="text-on-surface-variant text-[11px] font-[900] uppercase tracking-widest opacity-60">Total Requests</span>
-                <span className="text-4xl font-[900] text-primary tracking-tighter">1.2M</span>
+                <span className="text-4xl font-[900] text-primary tracking-tighter">
+                  {stats?.total_calls > 1000000 ? (stats.total_calls/1000000).toFixed(1) + 'M' : stats?.total_calls || 0}
+                </span>
                 <span className="text-emerald-600 text-[11px] font-black flex items-center gap-1 uppercase">
-                  <TrendingUp className="w-4 h-4" /> +12.5%
+                  <TrendingUp className="w-4 h-4" /> Live Uptime
                 </span>
               </div>
               <div className="bg-surface-container-low p-8 rounded-[32px] flex flex-col gap-3 border border-black/5 min-w-[200px]">
                 <span className="text-on-surface-variant text-[11px] font-[900] uppercase tracking-widest opacity-60">Active APIs</span>
-                <span className="text-4xl font-[900] text-on-surface tracking-tighter">4</span>
-                <span className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest opacity-50">2 pending review</span>
+                <span className="text-4xl font-[900] text-on-surface tracking-tighter">{myApis.length}</span>
+                <span className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest opacity-50">Verified status</span>
               </div>
             </div>
           </div>
@@ -94,27 +135,34 @@ export default function Dashboard() {
                 <button className="text-primary font-black text-xs uppercase tracking-widest hover:underline">View All</button>
               </div>
               <div className="space-y-4">
-                {[
-                  { name: "Linguistics Research Tool", method: "GET", version: "v2.4.0", latency: "450ms avg", icon: Terminal, color: "bg-primary-container/30 text-primary" },
-                  { name: "Molecule Sequence Parser", method: "POST", version: "v1.2.1", latency: "1.2s avg", icon: Microscope, color: "bg-tertiary-container/30 text-tertiary" },
-                  { name: "Advanced Calculus Solver", method: "GET", version: "v3.0.0", latency: "200ms avg", icon: Calculator, color: "bg-primary-container/30 text-primary" },
-                ].map((api, idx) => (
-                  <div key={idx} className="group p-5 bg-surface hover:bg-surface-container-low rounded-[24px] border border-transparent hover:border-black/5 transition-all flex items-center justify-between cursor-pointer">
-                    <div className="flex items-center gap-6">
-                      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm", api.color)}>
-                        <api.icon className="w-7 h-7" />
-                      </div>
-                      <div>
-                        <h3 className="font-[900] text-on-surface text-lg leading-none mb-2 tracking-tight">{api.name}</h3>
-                        <div className="flex items-center gap-3">
-                          <span className={cn("px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest", api.color.split(' ')[0])}>{api.method}</span>
-                          <span className="text-[11px] font-black text-on-surface-variant uppercase tracking-widest opacity-50">{api.version} • {api.latency}</span>
+                {myApis.map((api_item, idx) => {
+                  const styles = getCategoryStyles(api_item.category);
+                  const Icon = styles.icon;
+                  const primaryEp = api_item.endpoints?.[0] || { method: 'GET' };
+                  
+                  return (
+                    <div key={idx} className="group p-5 bg-surface hover:bg-surface-container-low rounded-[24px] border border-transparent hover:border-black/5 transition-all flex items-center justify-between cursor-pointer">
+                      <div className="flex items-center gap-6">
+                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm", styles.color)}>
+                          <Icon className="w-7 h-7" />
+                        </div>
+                        <div>
+                          <h3 className="font-[900] text-on-surface text-lg leading-none mb-2 tracking-tight">{api_item.name}</h3>
+                          <div className="flex items-center gap-3">
+                            <span className={cn("px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest", styles.color.split(' ')[0])}>{primaryEp.method}</span>
+                            <span className="text-[11px] font-black text-on-surface-variant uppercase tracking-widest opacity-50">v1.0.0 • {api_item.category}</span>
+                          </div>
                         </div>
                       </div>
+                      <ChevronRight className="w-6 h-6 text-outline-variant group-hover:text-primary transition-all group-hover:translate-x-1" />
                     </div>
-                    <ChevronRight className="w-6 h-6 text-outline-variant group-hover:text-primary transition-all group-hover:translate-x-1" />
+                  );
+                })}
+                {myApis.length === 0 && (
+                  <div className="py-20 text-center">
+                    <p className="text-on-surface-variant font-medium opacity-50">You haven't published any APIs yet.</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -124,8 +172,10 @@ export default function Dashboard() {
               <div className="mb-10">
                 <label className="text-[11px] font-[900] text-on-surface-variant uppercase tracking-widest mb-4 block opacity-60 ml-1">Production API Key</label>
                 <div className="bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between shadow-sm border border-black/5">
-                  <code className="text-primary font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap mr-4 font-bold">sk_academic_829374...92z</code>
-                  <button className="p-2 hover:bg-primary-container/20 rounded-lg transition-colors"><Copy className="w-5 h-5 text-primary" /></button>
+                  <code className="text-primary font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap mr-4 font-bold">
+                    {activeKey}
+                  </code>
+                  <button onClick={() => navigator.clipboard.writeText(activeKey)} className="p-2 hover:bg-primary-container/20 rounded-lg transition-colors"><Copy className="w-5 h-5 text-primary" /></button>
                 </div>
               </div>
               <div className="space-y-4 mt-auto">
@@ -135,10 +185,10 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-[900] leading-none mb-1">2FA Enabled</p>
-                    <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest opacity-50">Last verified 2h ago</p>
+                    <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest opacity-50">Identity Verified</p>
                   </div>
                 </div>
-                <button className="w-full py-5 bg-white text-on-surface border border-black/10 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-primary-container/10 transition-all shadow-sm">Rotate API Keys</button>
+                <button onClick={rotateKey} className="w-full py-5 bg-white text-on-surface border border-black/10 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-primary-container/10 transition-all shadow-sm">Rotate API Keys</button>
               </div>
             </div>
           </div>

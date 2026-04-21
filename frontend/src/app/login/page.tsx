@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { GraduationCap, Mail, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { GraduationCap, Mail, Lock, User, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '@/services/api';
 import { motion } from 'framer-motion';
 
@@ -13,7 +13,7 @@ const GithubIcon = ({ className }: { className?: string }) => (
 );
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
@@ -21,7 +21,13 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const params = new URLSearchParams();
+      params.append('username', username);
+      params.append('password', password);
+      
+      const res = await api.post('/auth/login', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
       localStorage.setItem('token', res.data.access_token);
       router.push('/dashboard');
     } catch (err: any) {
@@ -82,16 +88,16 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-2 opacity-60">Email Address</label>
+              <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-2 opacity-60">Username</label>
               <div className="relative">
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-outline/30" />
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-outline/30" />
                 <input 
-                  type="email" 
+                  type="text" 
                   required
                   className="w-full pl-14 pr-6 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-bold text-sm placeholder:text-outline/30"
-                  placeholder="scholar@university.edu"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  placeholder="athorne"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
                 />
               </div>
             </div>

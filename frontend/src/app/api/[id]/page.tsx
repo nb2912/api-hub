@@ -60,11 +60,11 @@ export default function APIDetails({ params }: { params: { id: string } }) {
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-primary" />
+                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", styles.color)}>
+                    <CategoryIcon className="w-6 h-6" />
                   </div>
-                  <span className="bg-primary-container text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    Academic Research
+                  <span className={cn("text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider", styles.color)}>
+                    {apiData.category}
                   </span>
                 </div>
                 <h1 className="text-4xl font-extrabold tracking-tight text-on-surface mb-4 font-headline">{apiData.name}</h1>
