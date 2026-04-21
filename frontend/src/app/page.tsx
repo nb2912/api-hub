@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Play, BadgeCheck, GraduationCap, Layout, Code, Globe, Terminal, ArrowRight } from 'lucide-react';
+import { Play, BadgeCheck, Layout, Code, Globe, Terminal, ArrowRight } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -13,14 +13,7 @@ export default function Home() {
       {/* Hero Section: Editorial Asymmetry */}
       <section className="pt-32 pb-16 px-8 max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center gap-16">
         <div className="flex-1 space-y-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 bg-primary-container/30 text-primary rounded-full text-xs font-bold tracking-wider uppercase"
-          >
-            <GraduationCap className="w-4 h-4" />
-            The Next-Gen API Hub for Developers
-          </motion.div>
+
           <h1 className="text-6xl md:text-[84px] font-extrabold tracking-tighter text-on-surface leading-[1.1]">
             Build, Share, and <span className="text-primary italic">Test</span> APIs
           </h1>
