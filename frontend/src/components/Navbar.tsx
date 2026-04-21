@@ -26,11 +26,17 @@ export default function Navbar() {
           
           <div className="hidden lg:flex items-center gap-8 font-['Manrope'] font-bold tracking-tight">
             <Link href="/explore" className={cn(
-              "text-sm transition-colors pb-1 border-b-2 font-[900] uppercase tracking-widest text-[11px]",
+              "transition-colors pb-1 border-b-2 font-[900] uppercase tracking-widest text-[11px]",
               pathname === '/explore' ? "text-primary border-primary" : "text-on-surface-variant border-transparent hover:text-primary"
             )}>Explore</Link>
-            <Link href="/docs" className="text-[11px] font-[900] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Documentation</Link>
-            <Link href="/community" className="text-[11px] font-[900] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Community</Link>
+            <Link href="/docs" className={cn(
+              "transition-colors pb-1 border-b-2 font-[900] uppercase tracking-widest text-[11px]",
+              pathname === '/docs' ? "text-primary border-primary" : "text-on-surface-variant border-transparent hover:text-primary"
+            )}>Documentation</Link>
+            <Link href="/community" className={cn(
+              "transition-colors pb-1 border-b-2 font-[900] uppercase tracking-widest text-[11px]",
+              pathname === '/community' ? "text-primary border-primary" : "text-on-surface-variant border-transparent hover:text-primary"
+            )}>Community</Link>
           </div>
         </div>
 
@@ -44,7 +50,7 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-6">
-              <Link href="/login" className="text-[11px] font-[900] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Login</Link>
+              <Link href="/login" className="text-[11px] font-[900] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors pb-1 border-b-2 border-transparent">Login</Link>
               <Link href="/register" className="bg-primary text-on-primary px-7 py-3 rounded-2xl text-[11px] font-[900] uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-primary/20">
                 Signup
               </Link>
