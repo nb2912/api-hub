@@ -6,14 +6,23 @@ import Link from 'next/link';
 import { Play, BadgeCheck, Layout, Code, Globe, Terminal, ArrowRight } from 'lucide-react';
 
 export default function Home() {
+  const [stats, setStats] = useState({ total_apis: 0, total_requests: 0, total_users: 0, avg_uptime: "99.9%" });
+
+  useEffect(() => {
+    import('@/services/api').then(m => {
+      m.default.get('/analytics/global-stats')
+        .then(res => setStats(res.data))
+        .catch(err => console.error("Stats fetch failed", err));
+    });
+  }, []);
+
   return (
-    <main className="relative min-h-screen">
+    <main className="relative min-h-screen text-on-surface">
       <Navbar />
       
       {/* Hero Section: Editorial Asymmetry */}
       <section className="pt-32 pb-16 px-8 max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center gap-16">
         <div className="flex-1 space-y-8">
-
           <h1 className="text-6xl md:text-[84px] font-extrabold tracking-tighter text-on-surface leading-[1.1]">
             Build, Share, and <span className="text-primary italic">Test</span> APIs
           </h1>
@@ -143,23 +152,24 @@ export default function Home() {
       <section className="py-20 bg-surface-container-lowest">
         <div className="max-w-screen-2xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
           <div className="space-y-2">
-            <div className="text-5xl font-extrabold text-primary tracking-tighter">500+</div>
+            <div className="text-5xl font-extrabold text-primary tracking-tighter">{stats.total_apis}+</div>
             <div className="text-on-surface-variant font-medium">Student APIs</div>
           </div>
           <div className="space-y-2">
-            <div className="text-5xl font-extrabold text-primary tracking-tighter">1.2M</div>
+            <div className="text-5xl font-extrabold text-primary tracking-tighter">{stats.total_requests > 1000 ? (stats.total_requests / 1000).toFixed(1) + 'K' : stats.total_requests}</div>
             <div className="text-on-surface-variant font-medium">Monthly Requests</div>
           </div>
           <div className="space-y-2">
-            <div className="text-5xl font-extrabold text-primary tracking-tighter">150+</div>
+            <div className="text-5xl font-extrabold text-primary tracking-tighter">{stats.total_users}+</div>
             <div className="text-on-surface-variant font-medium">Universities</div>
           </div>
           <div className="space-y-2">
-            <div className="text-5xl font-extrabold text-primary tracking-tighter">99.9%</div>
+            <div className="text-5xl font-extrabold text-primary tracking-tighter">{stats.avg_uptime}</div>
             <div className="text-on-surface-variant font-medium">Avg Uptime</div>
           </div>
         </div>
       </section>
+
 
       {/* CTA Section */}
       <section className="py-32 px-8 max-w-screen-xl mx-auto">

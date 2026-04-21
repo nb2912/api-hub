@@ -23,8 +23,8 @@ export default function SubmitAPI() {
     category: 'General',
   });
   
-  const [endpoints, setEndpoints] = useState([{ method: 'GET', path: '/v1/example' }]);
-  const [tags, setTags] = useState(['Biology', 'Open-Source']);
+  const [endpoints, setEndpoints] = useState([{ method: 'GET', path: '' }]);
+  const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
 
   const addEndpoint = () => setEndpoints([...endpoints, { method: 'GET', path: '/v1/new-path' }]);

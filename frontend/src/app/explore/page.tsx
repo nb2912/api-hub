@@ -9,19 +9,30 @@ import { cn } from '@/lib/utils';
 
 const CATEGORIES = ["Machine Learning", "Data Visualization", "Authentication", "Natural Language", "Storage", "Geospatial", "Health Stats"];
 
-const APIS_MOCK = [
-  { id: 1, name: "NeuroGraph Engine", desc: "High-performance neural network visualization and structural analysis for academic datasets.", rating: "4.9", tags: ["AI", "GRAPH"], method: "GET", path: "/analysis", color: "bg-primary-container text-primary", icon: Terminal },
-  { id: 2, name: "ScholarVault DB", desc: "Decentralized peer-reviewed citation storage with ultra-low latency retrieval.", rating: "4.7", tags: ["DATABASE", "STORAGE"], method: "POST", path: "/query", color: "bg-tertiary-container text-tertiary", icon: Database },
-  { id: 3, name: "EduAuth Identity", desc: "The standard for institutional single sign-on integration for student portals.", rating: "5.0", tags: ["AUTH", "SECURITY"], method: "GET", path: "/authorize", color: "bg-surface-container-highest text-primary", icon: Fingerprint },
-  { id: 4, name: "GenomeMapper", desc: "Real-time gene sequence alignment and comparative genomics processing.", rating: "4.8", tags: ["BIOTECH", "COMPUTE"], method: "PATCH", path: "/sequence", color: "bg-error/10 text-error", icon: Microscope },
-  { id: 5, name: "Polyglot Doc AI", desc: "Accurate translation of technical manuscripts across 45 academic languages.", rating: "4.6", tags: ["NLP", "LANGUAGE"], method: "POST", path: "/translate", color: "bg-secondary-container text-secondary", icon: Languages },
-  { id: 6, name: "GeoSpat Scholar", desc: "Historical mapping and territorial change analysis for social science research.", rating: "4.9", tags: ["MAPS", "HISTORY"], method: "GET", path: "/coordinates", color: "bg-primary-container/20 text-primary", icon: Map },
-  { id: 7, name: "ThesisWriter Pro", desc: "Advanced generative assistant for structuring and formatting doctoral dissertations.", rating: "5.0", tags: ["LLM", "EDITOR"], method: "POST", path: "/compose", color: "bg-on-surface text-white", icon: Sparkles, featured: true },
-  { id: 8, name: "MetricMind", desc: "Real-time impact factor and citation trend analytics for publishers.", rating: "4.5", tags: ["STATS", "PUBLISHING"], method: "GET", path: "/impact", color: "bg-surface-container-high text-on-surface-variant", icon: BarChart3 },
-];
+const getCategoryStyles = (category: string) => {
+  switch (category) {
+    case "Machine Learning": return { icon: Terminal, color: "bg-primary-container text-primary" };
+    case "Storage": return { icon: Database, color: "bg-tertiary-container text-tertiary" };
+    case "Authentication": return { icon: Fingerprint, color: "bg-surface-container-highest text-primary" };
+    case "Health Stats": return { icon: Microscope, color: "bg-error/10 text-error" };
+    case "Natural Language": return { icon: Languages, color: "bg-secondary-container text-secondary" };
+    case "Geospatial": return { icon: Map, color: "bg-primary-container/20 text-primary" };
+    default: return { icon: Code, color: "bg-surface-container-high text-on-surface-variant" };
+  }
+};
 
 export default function Explore() {
   const [search, setSearch] = useState("");
+  const [apis, setApis] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    api.get('/apis', { params: { search } })
+      .then(res => setApis(res.data))
+      .catch(err => console.error("Failed to fetch APIs", err))
+      .finally(() => setLoading(false));
+  }, [search]);
   
   return (
     <main className="min-h-screen bg-background text-on-background font-sans tracking-tight">
@@ -70,43 +81,54 @@ export default function Explore() {
           ))}
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-pulse">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="h-[400px] bg-surface-container-low rounded-2xl" />
+            ))}
+          </div>
+        )}
+
         {/* API Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {APIS_MOCK.map(api => (
-            <Link key={api.id} href={`/api/${api.id}`} className={cn(
-              "p-8 rounded-2xl group hover:shadow-2xl transition-all border border-black/5 flex flex-col",
-              api.featured ? "bg-white ring-2 ring-primary/10" : "bg-surface-container-lowest"
-            )}>
-              <div className="flex justify-between items-start mb-8">
-                <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg", api.color)}>
-                  <api.icon className="w-8 h-8" />
+          {!loading && apis.map(api_item => {
+            const styles = getCategoryStyles(api_item.category);
+            const Icon = styles.icon;
+            const primaryEndpoint = api_item.endpoints?.[0] || { method: "GET", path: "/api" };
+            
+            return (
+              <Link key={api_item.id} href={`/api/${api_item.id}`} className={cn(
+                "p-8 rounded-2xl group hover:shadow-2xl transition-all border border-black/5 flex flex-col bg-surface-container-lowest"
+              )}>
+                <div className="flex justify-between items-start mb-8">
+                  <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg", styles.color)}>
+                    <Icon className="w-8 h-8" />
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-xl border border-black/5">
+                    <Star className="w-3.5 h-3.5 text-amber-400 fill-current" />
+                    <span className="text-xs font-black text-on-surface">4.8</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-xl border border-black/5">
-                  <Star className="w-3.5 h-3.5 text-amber-400 fill-current" />
-                  <span className="text-xs font-black text-on-surface">{api.rating}</span>
+                
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-[22px] font-[900] text-on-surface tracking-tight leading-none">{api_item.name}</h3>
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="text-[22px] font-[900] text-on-surface tracking-tight leading-none">{api.name}</h3>
-                {api.featured && <span className="bg-primary text-on-primary px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest">Featured</span>}
-              </div>
-              <p className="text-on-surface-variant text-[14px] font-medium leading-relaxed mb-8 h-12 line-clamp-2">{api.desc}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-8">
-                {api.tags.map(tag => (
-                  <span key={tag} className="bg-surface-container-low text-on-surface-variant px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-black/5">
-                    {tag}
+                <p className="text-on-surface-variant text-[14px] font-medium leading-relaxed mb-8 h-12 line-clamp-2">{api_item.description}</p>
+                
+                <div className="flex flex-wrap gap-2 mb-8">
+                  <span className="bg-surface-container-low text-on-surface-variant px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-black/5">
+                    {api_item.category || "General"}
                   </span>
-                ))}
-              </div>
+                </div>
 
-              <div className="mt-auto pt-6 border-t border-surface-container-high/30 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-outline uppercase tracking-[0.2em] font-black">{api.method} {api.path}</span>
-                <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
-          ))}
+                <div className="mt-auto pt-6 border-t border-surface-container-high/30 flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-outline uppercase tracking-[0.2em] font-black">{primaryEndpoint.method} {primaryEndpoint.path}</span>
+                  <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
         {/* Bottom CTA Banner */}

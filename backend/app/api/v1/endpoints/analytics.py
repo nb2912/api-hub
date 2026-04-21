@@ -5,8 +5,7 @@ from sqlalchemy import func
 
 from app.api import deps
 from app.db.session import get_db
-from app.models.api_hub import Analytics, API
-from app.models.user import User
+from app.models.api_hub import Analytics, API, User
 
 router = APIRouter()
 
@@ -42,3 +41,15 @@ def get_top_apis(db: Session = Depends(get_db)) -> Any:
         .limit(5)\
         .all()
     return [{"name": name, "calls": count} for name, count in top_apis]
+
+@router.get("/global-stats", response_model=Any)
+def get_global_stats(db: Session = Depends(get_db)) -> Any:
+    total_apis = db.query(func.count(API.id)).scalar()
+    total_users = db.query(func.count(User.id)).scalar()
+    total_requests = db.query(func.count(Analytics.id)).scalar()
+    return {
+        "total_apis": total_apis or 0,
+        "total_users": total_users or 0,
+        "total_requests": total_requests or 0,
+        "avg_uptime": "99.9%"
+    }
